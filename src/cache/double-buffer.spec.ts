@@ -88,14 +88,14 @@ describe('DoubleBuffer', () => {
             // 다른 작업을 수행한다고 가정하고 대기
             await delay(_delay);
             await cache.zadd(
-              `${key}:temp`,
+              withDoubleBuffering ? `${key}:temp` : key,
               ...batch.flatMap(({ score, member }) => [score, member]),
             );
           }),
       );
 
       // 캐시 리프레시
-      await cache.rename(`${key}:temp`, key);
+      if (withDoubleBuffering) await cache.rename(`${key}:temp`, key);
     }
 
     async function getPopularLanguages(key: string) {
